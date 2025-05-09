@@ -60,6 +60,8 @@ class OriginalSabreSwap(TransformationPass):
 
         # starting point of the sabre swap algorithm
         front_layer = sabre_dag.front_layer()
+        while len(front_layer) > 0:
+            execute_gate_list = []
         return dest_dag, layout
 
 
