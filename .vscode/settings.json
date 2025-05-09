@@ -2,8 +2,10 @@
     "cSpell.words": [
         "basepasses",
         "dagcircuit",
+        "ndarray",
         "qasm",
         "qiskit",
-        "qregs"
+        "qregs",
+        "qubits"
     ]
 }
