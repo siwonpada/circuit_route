@@ -62,7 +62,12 @@ class OriginalSabreSwap(TransformationPass):
         front_layer = sabre_dag.front_layer()
         while len(front_layer) > 0:
             execute_gate_list = []
+
         return dest_dag, layout
+
+    def _gate_executable(self):
+        # TODO: implement this function to check if the gate is executable
+        return True
 
 
 if __name__ == "__main__":
