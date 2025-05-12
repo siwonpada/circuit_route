@@ -2,6 +2,8 @@ from qiskit.dagcircuit import DAGCircuit
 from numpy import ndarray
 from typing import List
 
+# TODO: implement the decay parameter in sabre algorithm to use the decay parameter
+
 
 def heuristic(
     candidate: List,

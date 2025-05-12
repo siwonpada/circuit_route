@@ -3,6 +3,7 @@
         "basepasses",
         "dagcircuit",
         "ndarray",
+        "predcessor",
         "qasm",
         "qiskit",
         "qregs",

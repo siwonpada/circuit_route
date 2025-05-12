@@ -7,9 +7,11 @@ from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library.standard_gates import SwapGate
 from qiskit.circuit import Qubit
 
-from qiskit.dagcircuit import DAGCircuit
+from qiskit.dagcircuit import DAGCircuit, DAGOpNode
 
 from copy import deepcopy
+
+from heuristic import heuristic
 
 
 class OriginalSabreSwap(TransformationPass):
@@ -48,8 +50,6 @@ class OriginalSabreSwap(TransformationPass):
 
         dest_dag = DAGCircuit()
         dest_dag.add_qreg(dag.qregs["q"])
-        dest_dag.add_creg(dag.cregs["c"])
-
         layout = Layout(
             {
                 dagInNode.wire: pq._index
@@ -57,23 +57,80 @@ class OriginalSabreSwap(TransformationPass):
                 if isinstance(pq, Qubit)
             }
         )  # this is the mapping pi of the paper
+        dest_dag.add_creg(
+            dag.cregs["c"]
+        )  # add classical register, since the layout only needs the qubit register, add creg after making the layout
 
         # starting point of the sabre swap algorithm
         front_layer = sabre_dag.front_layer()
+        swap_singleton = SwapGate("sabre_swap")
         while len(front_layer) > 0:
             execute_gate_list = []
+            current_layout = layout.get_virtual_bits()
+
+            # find the executable gates
+            for node in front_layer:
+                q1, q2 = (
+                    current_layout[node.qargs[0]],
+                    current_layout[node.qargs[1]],
+                )
+                if self.coupling_map.distance(q1, q2) == 1:
+                    execute_gate_list.append(node)
+
+            # append the successors of the executable gates to the front layer if their predecessors are all executable
+            if len(execute_gate_list) != 0:
+                for node in execute_gate_list:
+                    successors = sabre_dag.successors(node)
+                    sabre_dag.remove_op_node(node)
+                    # TODO: apply to the dest_dag containing the 1 qubit gates before the 2 qubit gates
+
+                    # actually, we just use the method front_layer() after removing the node
+                    front_layer.remove(node)
+                    for node in successors:
+                        f_flag = True
+                        for predcessor in sabre_dag.predecessors(node):
+                            if isinstance(predcessor, DAGOpNode):
+                                f_flag = False
+                        if f_flag:
+                            front_layer.append(node)
+            # if there is no executable gate, we need to swap the qubits
+            else:
+                # need heuristic to find the best swap
+                for node in front_layer:
+                    heuristic_score = {}
+                    swap_candidate_list = []
+                    q1, q2 = (
+                        current_layout[node.qargs[0]],
+                        current_layout[node.qargs[1]],
+                    )
+                    for nq in self.coupling_map.neighbors(q1):
+                        swap_candidate_list.append((q1, nq))
+                    for nq in self.coupling_map.neighbors(q2):
+                        swap_candidate_list.append((q2, nq))
+                    for swap_candidate in swap_candidate_list:
+                        temp_layout = deepcopy(layout)
+                        temp_layout.swap(swap_candidate[0], swap_candidate[1])
+                        heuristic_score[swap_candidate] = heuristic(
+                            swap_candidate,
+                            sabre_dag,
+                            temp_layout.get_virtual_bits(),
+                            self.dist_matrix,
+                            [0.5, 0.5],
+                        )
+                    min_score_gate = heuristic_score[
+                        min(heuristic_score.keys(), key=lambda x: heuristic_score[x])
+                    ]
+                    layout.swap(min_score_gate[0], min_score_gate[1])
+
+                # TODO: apply the swap gate to the dest_dag
 
         return dest_dag, layout
-
-    def _gate_executable(self):
-        # TODO: implement this function to check if the gate is executable
-        return True
 
 
 if __name__ == "__main__":
     import qiskit.qasm2
 
-    circuit = qiskit.qasm2.load("data/3_17_13.qasm")
+    circuit = qiskit.qasm2.load("data/4gt4-v0_80.qasm")
 
     coupling_map = CouplingMap.from_grid(4, 4)
     sabre_swap = OriginalSabreSwap(coupling_map)
