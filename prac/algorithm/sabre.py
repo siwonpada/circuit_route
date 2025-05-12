@@ -63,6 +63,7 @@ class OriginalSabreSwap(TransformationPass):
 
         # starting point of the sabre swap algorithm
         front_layer = sabre_dag.front_layer()
+        decay_parameter = [0.001] * coupling_map.size()
         swap_singleton = SwapGate("sabre_swap")
         while len(front_layer) > 0:
             execute_gate_list = []
@@ -94,6 +95,8 @@ class OriginalSabreSwap(TransformationPass):
                                 f_flag = False
                         if f_flag:
                             front_layer.append(node)
+                decay_parameter = [0.001] * coupling_map.size()
+
             # if there is no executable gate, we need to swap the qubits
             else:
                 # need heuristic to find the best swap
@@ -113,15 +116,18 @@ class OriginalSabreSwap(TransformationPass):
                         temp_layout.swap(swap_candidate[0], swap_candidate[1])
                         heuristic_score[swap_candidate] = heuristic(
                             swap_candidate,
+                            front_layer,
                             sabre_dag,
                             temp_layout.get_virtual_bits(),
                             self.dist_matrix,
-                            [0.5, 0.5],
+                            decay_parameter,
                         )
                     min_score_gate = heuristic_score[
                         min(heuristic_score.keys(), key=lambda x: heuristic_score[x])
                     ]
                     layout.swap(min_score_gate[0], min_score_gate[1])
+                    decay_parameter[min_score_gate[0]] += 0.001
+                    decay_parameter[min_score_gate[1]] += 0.001
 
                 # TODO: apply the swap gate to the dest_dag
 
@@ -138,7 +144,6 @@ if __name__ == "__main__":
     dag = circuit_to_dag(circuit)
     sabre_swap.run(dag)
 
-    pass
 # SABRE를 구현하기 위해서 1 qubit gate는 일단 두고, 2 qubit gate만의 layer를 찾아야 한다. -> 이는 현재 dag에서 1 qubit gate를 모두 제거 함으로 가능하다.
 # 그리고 2 qubit gate는 모두 swap을 통해서 mapping을 해줘야 한다. -> 이때 swap은 coupling map에 맞춰서 해야 한다. 이때, 휴리스틱은 따로 구현을 해 주어야 한다. 이는 일단 구현이 되어있는 github의 repo를 참고해서 알고리즘을 가져오자.
 # 한번 swap을 했으면, 그에 따른 logical-physical qubit의 mapping을 업데이트 해 주어야 한다. 이를 위해서 우리는 주어지는 gate의 기준이 logical qubit임을 주의하여야 한다. 또한 distance를 구할 때는, logical qubit이 아니라 physical qubit을 기준으로 해야 한다. -> 이때, coupling map을 통해서 distance를 구할 수 있다
