@@ -79,6 +79,7 @@ class OriginalSabreSwap(TransformationPass):
 
             # append the successors of the executable gates to the front layer if their predecessors are all executable
             if len(execute_gate_list) != 0:
+                # actually, we choose one swap gate from all the neighbor swap gates however, in the reference code (https://github.com/Kaustuvi/quantum-qubit-mapping/blob/master/quantum_qubit_mapping/sabre_tools/sabre.py) she make a swap gate for each front layer node
                 for node in execute_gate_list:
                     successors = sabre_dag.successors(node)
                     sabre_dag.remove_op_node(node)
