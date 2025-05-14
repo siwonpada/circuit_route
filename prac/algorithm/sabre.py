@@ -59,6 +59,10 @@ class OriginalSabreSwap(TransformationPass):
         dest_dag.add_creg(
             dag.cregs["c"]
         )  # add classical register, since the layout only needs the qubit register, add creg after making the layout
+        for start_node in dag.input_map.values():
+            _apply_1_qubit_successors(
+                start_node, dag, dest_dag, layout.get_virtual_bits()
+            )
 
         # starting point of the sabre swap algorithm
         front_layer = sabre_dag.front_layer()
@@ -83,11 +87,15 @@ class OriginalSabreSwap(TransformationPass):
                 for node in execute_gate_list:
                     successors = sabre_dag.successors(node)
                     sabre_dag.remove_op_node(node)
-                    _apply_1_qubit_predecessors(node, dag, dest_dag)
+                    dag_node = dag.node(node._node_id)
                     dest_dag.apply_operation_back(
                         node.op,
-                        (node.qargs[0], node.qargs[1]),
+                        (
+                            dest_dag.qregs["q"][current_layout[node.qargs[0]]],
+                            dest_dag.qregs["q"][current_layout[node.qargs[1]]],
+                        ),
                     )
+                    _apply_1_qubit_successors(dag_node, dag, dest_dag, current_layout)
 
                     # actually, we just use the method front_layer() after removing the node
                     front_layer.remove(node)
@@ -133,12 +141,11 @@ class OriginalSabreSwap(TransformationPass):
                         heuristic_score.keys(), key=lambda x: heuristic_score[x]
                     )
 
-                    current_physical_qubit = layout.get_physical_bits()
                     dest_dag.apply_operation_back(
                         swap_singleton,
                         (
-                            current_physical_qubit[min_score_gate[0]],
-                            current_physical_qubit[min_score_gate[1]],
+                            dest_dag.qregs["q"][min_score_gate[0]],
+                            dest_dag.qregs["q"][min_score_gate[1]],
                         ),
                     )  # apply swap gate to the dest_dag
                     layout.swap(min_score_gate[0], min_score_gate[1])
@@ -148,28 +155,25 @@ class OriginalSabreSwap(TransformationPass):
         return dest_dag
 
 
-def _apply_1_qubit_predecessors(node, dag, dest_dag):
-    """Apply all the 1 qubit predecessors of the node to the dest_dag."""
-    predecessors = dag.predecessors(node)
-    for predecessor in predecessors:
-        if isinstance(predecessor, DAGOpNode):
-            _apply_1_qubit_predecessors(predecessor, dag, dest_dag)
+def _apply_1_qubit_successors(node, dag, dest_dag, layout):
+    """Apply all the 1 qubit successors of the node to the dest_dag."""
+    successors = dag.successors(node)
+    for successor in successors:
+        if isinstance(successor, DAGOpNode) and successor.op.num_qubits == 1:
             dest_dag.apply_operation_back(
-                predecessor.op, (predecessor.qargs[0],)
-            )  # apply the 1 qubit gate to the dest_dag
-            dag.remove_op_node(predecessor)  # remove the 1 qubit gate from the dag
+                successor.op,
+                (dest_dag.qregs["q"][layout[successor.qargs[0]]],),
+            )
+            _apply_1_qubit_successors(successor, dag, dest_dag, layout)
+            dag.remove_op_node(successor)
 
 
 if __name__ == "__main__":
     import qiskit.qasm2
 
-    circuit = qiskit.qasm2.load("data/4gt4-v0_80.qasm")
+    circuit = qiskit.qasm2.load("data/4mod5-v1_23.qasm")
 
     coupling_map = CouplingMap.from_grid(4, 4)
     sabre_swap = OriginalSabreSwap(coupling_map)
     dag = circuit_to_dag(circuit)
     sabre_swap.run(dag)
-
-# SABRE를 구현하기 위해서 1 qubit gate는 일단 두고, 2 qubit gate만의 layer를 찾아야 한다. -> 이는 현재 dag에서 1 qubit gate를 모두 제거 함으로 가능하다.
-# 그리고 2 qubit gate는 모두 swap을 통해서 mapping을 해줘야 한다. -> 이때 swap은 coupling map에 맞춰서 해야 한다. 이때, 휴리스틱은 따로 구현을 해 주어야 한다. 이는 일단 구현이 되어있는 github의 repo를 참고해서 알고리즘을 가져오자.
-# 한번 swap을 했으면, 그에 따른 logical-physical qubit의 mapping을 업데이트 해 주어야 한다. 이를 위해서 우리는 주어지는 gate의 기준이 logical qubit임을 주의하여야 한다. 또한 distance를 구할 때는, logical qubit이 아니라 physical qubit을 기준으로 해야 한다. -> 이때, coupling map을 통해서 distance를 구할 수 있다
