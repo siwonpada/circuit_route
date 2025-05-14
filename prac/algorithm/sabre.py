@@ -1,7 +1,6 @@
 from qiskit.transpiler.basepasses import TransformationPass
 from qiskit.transpiler.exceptions import TranspilerError
 from qiskit.transpiler.layout import Layout
-from qiskit.circuit import QuantumCircuit
 from qiskit.converters import circuit_to_dag
 from qiskit.transpiler import CouplingMap
 from qiskit.circuit.library.standard_gates import SwapGate
@@ -84,7 +83,11 @@ class OriginalSabreSwap(TransformationPass):
                 for node in execute_gate_list:
                     successors = sabre_dag.successors(node)
                     sabre_dag.remove_op_node(node)
-                    # TODO: apply to the dest_dag containing the 1 qubit gates before the 2 qubit gates
+                    _apply_1_qubit_predecessors(node, dag, dest_dag, current_layout)
+                    dest_dag.apply_operation_back(
+                        node.op,
+                        (current_layout[node.qargs[0]], current_layout[node.qargs[1]]),
+                    )
 
                     # actually, we just use the method front_layer() after removing the node
                     front_layer.remove(node)
@@ -128,10 +131,27 @@ class OriginalSabreSwap(TransformationPass):
                     layout.swap(min_score_gate[0], min_score_gate[1])
                     decay_parameter[min_score_gate[0]] += 0.001
                     decay_parameter[min_score_gate[1]] += 0.001
-
-                # TODO: apply the swap gate to the dest_dag
+                    dest_dag.apply_operation_back(
+                        swap_singleton,
+                        (min_score_gate[0], min_score_gate[1]),
+                    )  # apply swap gate to the dest_dag
 
         return dest_dag, layout
+
+
+def _apply_1_qubit_predecessors(node, dag, dest_dag, current_layout):
+    """Apply all the 1 qubit predecessors of the node to the dest_dag."""
+    predecessors = dag.predecessors(node)
+    for predecessor in predecessors:
+        if isinstance(predecessor, DAGOpNode):
+            _apply_1_qubit_predecessors(predecessor, dag, dest_dag, current_layout)
+            # apply the 1 qubit gate to the dest_dag
+            dest_dag.apply_operation_back(
+                predecessor.op,
+                (current_layout[predecessor.qargs[0]],),
+            )
+            # remove the predecessor from the dag
+            dag.remove_op_node(predecessor)
 
 
 if __name__ == "__main__":
