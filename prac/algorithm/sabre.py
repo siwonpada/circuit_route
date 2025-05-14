@@ -10,7 +10,7 @@ from qiskit.dagcircuit import DAGCircuit, DAGOpNode
 
 from copy import deepcopy
 
-from heuristic import heuristic
+from algorithm.heuristic import heuristic
 
 
 class OriginalSabreSwap(TransformationPass):
@@ -62,7 +62,7 @@ class OriginalSabreSwap(TransformationPass):
 
         # starting point of the sabre swap algorithm
         front_layer = sabre_dag.front_layer()
-        decay_parameter = [0.001] * coupling_map.size()
+        decay_parameter = [0.001] * self.coupling_map.size()
         swap_singleton = SwapGate("sabre_swap")
         while len(front_layer) > 0:
             execute_gate_list = []
@@ -83,22 +83,26 @@ class OriginalSabreSwap(TransformationPass):
                 for node in execute_gate_list:
                     successors = sabre_dag.successors(node)
                     sabre_dag.remove_op_node(node)
-                    _apply_1_qubit_predecessors(node, dag, dest_dag, current_layout)
+                    _apply_1_qubit_predecessors(node, dag, dest_dag)
                     dest_dag.apply_operation_back(
                         node.op,
-                        (current_layout[node.qargs[0]], current_layout[node.qargs[1]]),
+                        (node.qargs[0], node.qargs[1]),
                     )
 
                     # actually, we just use the method front_layer() after removing the node
                     front_layer.remove(node)
                     for node in successors:
+                        if not isinstance(node, DAGOpNode):
+                            continue
                         f_flag = True
                         for predcessor in sabre_dag.predecessors(node):
                             if isinstance(predcessor, DAGOpNode):
                                 f_flag = False
                         if f_flag:
                             front_layer.append(node)
-                decay_parameter = [0.001] * coupling_map.size()
+                decay_parameter = [
+                    0.001
+                ] * self.coupling_map.size()  # reset the decay parameter
 
             # if there is no executable gate, we need to swap the qubits
             else:
@@ -125,33 +129,35 @@ class OriginalSabreSwap(TransformationPass):
                             self.dist_matrix,
                             decay_parameter,
                         )
-                    min_score_gate = heuristic_score[
-                        min(heuristic_score.keys(), key=lambda x: heuristic_score[x])
-                    ]
+                    min_score_gate = min(
+                        heuristic_score.keys(), key=lambda x: heuristic_score[x]
+                    )
+
+                    current_physical_qubit = layout.get_physical_bits()
+                    dest_dag.apply_operation_back(
+                        swap_singleton,
+                        (
+                            current_physical_qubit[min_score_gate[0]],
+                            current_physical_qubit[min_score_gate[1]],
+                        ),
+                    )  # apply swap gate to the dest_dag
                     layout.swap(min_score_gate[0], min_score_gate[1])
                     decay_parameter[min_score_gate[0]] += 0.001
                     decay_parameter[min_score_gate[1]] += 0.001
-                    dest_dag.apply_operation_back(
-                        swap_singleton,
-                        (min_score_gate[0], min_score_gate[1]),
-                    )  # apply swap gate to the dest_dag
 
-        return dest_dag, layout
+        return dest_dag
 
 
-def _apply_1_qubit_predecessors(node, dag, dest_dag, current_layout):
+def _apply_1_qubit_predecessors(node, dag, dest_dag):
     """Apply all the 1 qubit predecessors of the node to the dest_dag."""
     predecessors = dag.predecessors(node)
     for predecessor in predecessors:
         if isinstance(predecessor, DAGOpNode):
-            _apply_1_qubit_predecessors(predecessor, dag, dest_dag, current_layout)
-            # apply the 1 qubit gate to the dest_dag
+            _apply_1_qubit_predecessors(predecessor, dag, dest_dag)
             dest_dag.apply_operation_back(
-                predecessor.op,
-                (current_layout[predecessor.qargs[0]],),
-            )
-            # remove the predecessor from the dag
-            dag.remove_op_node(predecessor)
+                predecessor.op, (predecessor.qargs[0],)
+            )  # apply the 1 qubit gate to the dest_dag
+            dag.remove_op_node(predecessor)  # remove the 1 qubit gate from the dag
 
 
 if __name__ == "__main__":
