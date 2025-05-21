@@ -1,11 +1,15 @@
 {
     "cSpell.words": [
         "basepasses",
+        "creg",
+        "cregs",
         "dagcircuit",
         "ndarray",
         "predcessor",
+        "qargs",
         "qasm",
         "qiskit",
+        "qreg",
         "qregs",
         "qubits"
     ]
