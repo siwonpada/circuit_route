@@ -28,7 +28,10 @@ class SabreSwapEnv(gym.Env):
         if coupling_map is None:
             raise ValueError("SabreSwapEnv cannot run with coupling_map=None")
         self._coupling_map = coupling_map
+        self._circuits = circuits
+        self._swap_singleton = SwapGate()
         max_num_qubits = coupling_map.size()
+
         self.observation_space = gym.spaces.Dict(
             {
                 "swap_candidate": gym.spaces.Sequence(
@@ -48,21 +51,11 @@ class SabreSwapEnv(gym.Env):
                     shape=(max_num_qubits,),
                     dtype=np.int32,
                 ),
-                "dist_matrix": gym.spaces.Box(
-                    low=0,
-                    high=max_num_qubits,
-                    shape=(max_num_qubits, max_num_qubits),
-                    dtype=np.int32,
-                ),
             }
         )
         self.action_space = gym.spaces.Box(
             low=0, high=max_num_qubits, shape=(2,), dtype=np.int32
         )
-        self._circuits = circuits
-        self._circuit = random.choice(self._circuits)
-        self._init_sabre(self._circuit)
-        self._swap_singleton = SwapGate()
         return
 
     def reset(
@@ -70,7 +63,43 @@ class SabreSwapEnv(gym.Env):
     ) -> tuple[Any, dict[str, Any]]:
         self._circuit = random.choice(self._circuits)
         self._init_sabre(self._circuit)
-        return super().reset(seed=seed, options=options)
+
+        updated_result = self._update_front_layer()
+
+        return (
+            {
+                "swap_candidate": updated_result[0],
+                "sabre_dag": self._sabre_dag,
+                "current_layout": updated_result[1],
+            },
+            {"distance_matrix": self.dist_matrix},
+        )
+
+    def step(
+        self, action: tuple[int, int]
+    ) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
+        self._apply_swap(action)
+
+        updated_result = self._update_front_layer()
+        return (
+            {
+                "swap_candidate": updated_result[0],
+                "sabre_dag": self._sabre_dag,
+                "current_layout": updated_result[1],
+            },
+            self.reward(updated_result[2], self._swap_depth),
+            updated_result[3],
+            False,
+            {
+                "distance_matrix": self.dist_matrix,
+            },
+        )
+
+    def render(self):
+        return self._dest_dag.draw()
+
+    def reward(self, executable_gate_number: int, swap_layer: int) -> float:
+        return -1 + 2 * executable_gate_number - 0.5 * swap_layer
 
     def _init_sabre(self, circuit: QuantumCircuit) -> None:
         # Set up Layout and Ancilla
@@ -118,22 +147,9 @@ class SabreSwapEnv(gym.Env):
         # Set up the initial state
         self._front_layer = self._sabre_dag.front_layer()
         self._swap_depth = 0
+        return
 
-    def step(
-        self, action: tuple[int, int]
-    ) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
-        # apply the swap operation
-        before_swap_depth = self._dest_dag.depth()
-        self._dest_dag.apply_operation_back(
-            self._swap_singleton,
-            (
-                self._dest_dag.qregs["q"][action[0]],
-                self._dest_dag.qregs["q"][action[1]],
-            ),
-        )
-        self._layout.swap(action[0], action[1])
-        self._swap_depth += self._dest_dag.depth() - before_swap_depth
-
+    def _update_front_layer(self) -> tuple[list, dict, int, bool]:
         # update the front layer
         isTerminated = True
         executable_gate_number = 0
@@ -195,27 +211,25 @@ class SabreSwapEnv(gym.Env):
                 swap_candidate_list.append((q2, nq))
 
         return (
-            {
-                "swap_candidate": swap_candidate_list,
-                "sabre_dag": self._sabre_dag,
-                "current_layout": current_layout,
-                "dist_matrix": self.dist_matrix,
-            },
-            self.reward(executable_gate_number, self._swap_depth),
+            swap_candidate_list,
+            current_layout,
+            executable_gate_number,
             isTerminated,
-            False,
-            {
-                "dest_dag": self._dest_dag,
-                "sabre_dag": self._sabre_dag,
-                "current_layout": current_layout,
-            },
         )
 
-    def render(self):
-        return self._dest_dag.draw()
-
-    def reward(self, executable_gate_number: int, swap_layer: int) -> float:
-        return -1 + 2 * executable_gate_number - 0.5 * swap_layer
+    def _apply_swap(self, action: tuple[int, int]) -> None:
+        # apply the swap operation
+        before_swap_depth = self._dest_dag.depth()
+        self._dest_dag.apply_operation_back(
+            self._swap_singleton,
+            (
+                self._dest_dag.qregs["q"][action[0]],
+                self._dest_dag.qregs["q"][action[1]],
+            ),
+        )
+        self._layout.swap(action[0], action[1])
+        self._swap_depth += self._dest_dag.depth() - before_swap_depth
+        return
 
 
 # util function to apply the 1 qubit successors of the node
