@@ -215,7 +215,7 @@ class SabreSwapEnv(gym.Env):
         return self._dest_dag.draw()
 
     def reward(self, executable_gate_number: int, swap_layer: int) -> float:
-        return -0.1 + 0.2 * executable_gate_number - 0.05 * swap_layer
+        return -1 + 2 * executable_gate_number - 0.5 * swap_layer
 
 
 # util function to apply the 1 qubit successors of the node
