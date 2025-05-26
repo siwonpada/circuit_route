@@ -2,6 +2,7 @@ from typing import Any, SupportsFloat
 import gymnasium as gym
 import numpy as np
 import random
+import networkx as nx
 
 
 from qiskit import QuantumCircuit
@@ -23,12 +24,16 @@ from copy import deepcopy
 
 class SabreSwapEnv(gym.Env):
     def __init__(
-        self, circuits: list[QuantumCircuit], coupling_map: CouplingMap
+        self,
+        circuits: list[QuantumCircuit],
+        coupling_map: CouplingMap,
+        n_graph: int = 10,
     ) -> None:
         if coupling_map is None:
             raise ValueError("SabreSwapEnv cannot run with coupling_map=None")
         self._coupling_map = coupling_map
         self._circuits = circuits
+        self._n_graph = n_graph
         self._swap_singleton = SwapGate()
         max_num_qubits = coupling_map.size()
 
@@ -41,9 +46,12 @@ class SabreSwapEnv(gym.Env):
                 ),
                 "sabre_dag": gym.spaces.Graph(
                     node_space=gym.spaces.Box(
-                        low=0, high=max_num_qubits, shape=(2,), dtype=np.int32
+                        low=0,
+                        high=max_num_qubits,
+                        shape=(3,),
+                        dtype=np.int32,  # first, second, front_Layer
                     ),
-                    edge_space=gym.spaces.Discrete(max_num_qubits),
+                    edge_space=gym.spaces.Discrete(max_num_qubits),  # Wire
                 ),
                 "current_layout": gym.spaces.Box(
                     low=0,
@@ -69,7 +77,7 @@ class SabreSwapEnv(gym.Env):
         return (
             {
                 "swap_candidate": updated_result[0],
-                "sabre_dag": self._sabre_dag,
+                "sabre_dag": self._convert_digraph(),
                 "current_layout": updated_result[1],
             },
             {"distance_matrix": self.dist_matrix},
@@ -84,7 +92,7 @@ class SabreSwapEnv(gym.Env):
         return (
             {
                 "swap_candidate": updated_result[0],
-                "sabre_dag": self._sabre_dag,
+                "sabre_dag": self._convert_digraph(),
                 "current_layout": updated_result[1],
             },
             self.reward(updated_result[2], self._swap_depth),
@@ -230,6 +238,28 @@ class SabreSwapEnv(gym.Env):
         self._layout.swap(action[0], action[1])
         self._swap_depth += self._dest_dag.depth() - before_swap_depth
         return
+
+    def _convert_digraph(self):
+        G = nx.DiGraph()
+        count = 0
+        process_nodes = deepcopy(self._front_layer)
+        while len(process_nodes) > 0 and count < self._n_graph:
+            node = process_nodes.pop(0)
+            if not isinstance(node, DAGOpNode):
+                continue
+            process_nodes += self._sabre_dag.successors(node)
+            G.add_node(
+                node._node_id,
+                first=node.qargs[0],
+                second=node.qargs[1],
+                front_layer=True if count < len(self._front_layer) else False,
+            )
+            for pred in self._sabre_dag.predecessors(node):
+                if isinstance(pred, DAGOpNode):
+                    wire = list(filter(lambda x: x in node.qargs, pred.qargs))
+                    G.add_edge(pred._node_id, node._node_id, wire=wire[0])
+            count += 1
+        return G
 
 
 # util function to apply the 1 qubit successors of the node
