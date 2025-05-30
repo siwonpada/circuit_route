@@ -207,6 +207,9 @@ class SabreSwapEnv(gym.Env):
                 isTerminated = False
                 break
 
+        if isTerminated:
+            return [(-1, -1)], current_layout, 0, isTerminated
+
         swap_candidate_list = []
         for node in self._front_layer:
             q1, q2 = (
