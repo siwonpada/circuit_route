@@ -7,6 +7,7 @@ import networkx as nx
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Qubit
+from qiskit.circuit
 from qiskit.circuit.library.standard_gates import SwapGate
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.passes import (
@@ -20,6 +21,13 @@ from qiskit.converters import circuit_to_dag
 from qiskit.dagcircuit import DAGOpNode, DAGCircuit
 
 from copy import deepcopy
+
+class LayoutSpace(gym.spaces.Space):
+    def __init__(self) -> None:
+        super().__init__()  # Initialize the base class 
+
+    def sample(self) -> Layout:
+        return Layout({})  
 
 
 class SabreSwapEnv(gym.Env):
