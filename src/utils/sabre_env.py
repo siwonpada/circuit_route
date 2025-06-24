@@ -7,7 +7,6 @@ import networkx as nx
 
 from qiskit import QuantumCircuit
 from qiskit.circuit import Qubit
-from qiskit.circuit
 from qiskit.circuit.library.standard_gates import SwapGate
 from qiskit.transpiler import CouplingMap, PassManager
 from qiskit.transpiler.passes import (
@@ -17,17 +16,24 @@ from qiskit.transpiler.passes import (
     FullAncillaAllocation,
 )
 from qiskit.transpiler.layout import Layout
-from qiskit.converters import circuit_to_dag
+from qiskit.converters import circuit_to_dag, dag_to_circuit
 from qiskit.dagcircuit import DAGOpNode, DAGCircuit
 
 from copy import deepcopy
 
+
 class LayoutSpace(gym.spaces.Space):
     def __init__(self) -> None:
-        super().__init__()  # Initialize the base class 
+        """A custom space for the layout for the ibm qiskit environment."""
+        super().__init__()  # Initialize the base class
 
-    def sample(self) -> Layout:
-        return Layout({})  
+    def sample(self, mask: Any | None = None, probability: int | None = None) -> Layout:
+        return Layout({Qubit(i): i for i in range(5)})  # Example layout with 5 qubits
+
+    def contains(self, x: Any) -> bool:
+        if isinstance(x, Layout):
+            return True
+        return False
 
 
 class SabreSwapEnv(gym.Env):
@@ -40,6 +46,7 @@ class SabreSwapEnv(gym.Env):
         if coupling_map is None:
             raise ValueError("SabreSwapEnv cannot run with coupling_map=None")
         self._coupling_map = coupling_map
+        self._distance_matrix = coupling_map.distance_matrix
         self._circuits = circuits
         self._n_graph = n_graph
         self._swap_singleton = SwapGate()
@@ -69,12 +76,7 @@ class SabreSwapEnv(gym.Env):
                     ),
                     edge_space=gym.spaces.Discrete(max_num_qubits),  # Wire
                 ),
-                "current_layout": gym.spaces.Box(
-                    low=0,
-                    high=max_num_qubits,
-                    shape=(max_num_qubits,),
-                    dtype=np.int32,
-                ),
+                "current_layout": LayoutSpace(),
             }
         )
         self.action_space = gym.spaces.Box(
@@ -85,48 +87,77 @@ class SabreSwapEnv(gym.Env):
     def reset(
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
     ) -> tuple[Any, dict[str, Any]]:
+        """Reset the environment to a new circuit and initialize the SABRE algorithm."""
+        super().reset(seed=seed, options=options)
         self._circuit = random.choice(self._circuits)
+        self._swap_candidate = []
         self._init_sabre(self._circuit)
 
-        updated_result = self._update_front_layer()
+        self._update_front_layer()
 
         return (
             {
-                "swap_candidate": updated_result[0],
+                "swap_candidate": self._swap_candidate,
                 "front_layer": self._convert_front_layer(),
                 "sabre_dag": self._convert_digraph(),
                 "current_layout": self._layout,
             },
-            {"distance_matrix": self.dist_matrix, "coupling_map": self._coupling_map},
+            {
+                "distance_matrix": self._distance_matrix,
+                "coupling_map": self._coupling_map,
+                "circuit": self._circuit,
+                "result_circuit": dag_to_circuit(self._dest_dag),
+            },
         )
 
     def step(
         self, action: tuple[int, int]
     ) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
-        self._apply_swap(action)
+        """Perform a step in the environment by applying a swap action."""
+        isTruncated = self._apply_swap(action)
 
-        updated_result = self._update_front_layer()
+        executable_gate_number, isTerminated = self._update_front_layer()
         return (
             {
-                "swap_candidate": updated_result[0],
+                "swap_candidate": self._swap_candidate,
                 "front_layer": self._convert_front_layer(),
                 "sabre_dag": self._convert_digraph(),
                 "current_layout": self._layout,
             },
-            self.reward(updated_result[2], self._swap_depth),
-            updated_result[3],
-            False,
+            self.reward(
+                executable_gate_number, self._swap_depth, isTerminated, isTruncated
+            ),
+            isTerminated,
+            isTruncated,
             {
-                "distance_matrix": self.dist_matrix,
+                "distance_matrix": self._distance_matrix,
                 "coupling_map": self._coupling_map,
+                "circuit": self._circuit,
+                "result_circuit": dag_to_circuit(self._dest_dag),
             },
         )
 
     def render(self):
+        """Draw the destination DAG circuit."""
         return self._dest_dag.draw()
 
-    def reward(self, executable_gate_number: int, swap_layer: int) -> float:
-        return -1 + 2 * executable_gate_number - 0.5 * swap_layer
+    def reward(
+        self,
+        executable_gate_number: int,
+        swap_layer: int,
+        isTerminated: bool,
+        isTruncated: bool,
+    ) -> float:
+        """
+        Calculate the reward based on the number of executable gates and swap layers.
+        """
+        return (
+            -0.1
+            + 0.2 * executable_gate_number
+            - 0.05 * swap_layer
+            + (5 if isTerminated else 0)
+            - (10 if isTruncated else 0)
+        )
 
     def _init_sabre(self, circuit: QuantumCircuit) -> None:
         # Set up Layout and Ancilla
@@ -150,9 +181,6 @@ class SabreSwapEnv(gym.Env):
         for node in delete_nodes:
             self._sabre_dag.remove_op_node(node)
 
-        # Set up the distance matrix
-        self.dist_matrix = self._coupling_map.distance_matrix
-
         # Set up the result dag for check the result
         self._dest_dag = DAGCircuit()
         self._dest_dag.add_qreg(self._dag.qregs["q"])
@@ -167,16 +195,14 @@ class SabreSwapEnv(gym.Env):
             self._dag.cregs["c"]
         )  # add classical register, since the layout only needs the qubit register, add creg after making the layout
         for start_node in self._dag.input_map.values():
-            _apply_1_qubit_successors(
-                start_node, self._dag, self._dest_dag, self._layout.get_virtual_bits()
-            )
+            self._apply_1_qubit_successors(start_node)
 
         # Set up the initial state
         self._front_layer = self._sabre_dag.front_layer()
         self._swap_depth = 0
         return
 
-    def _update_front_layer(self) -> tuple[list, dict, int, bool]:
+    def _update_front_layer(self) -> tuple[int, bool]:
         # update the front layer
         isTerminated = True
         executable_gate_number = 0
@@ -207,9 +233,7 @@ class SabreSwapEnv(gym.Env):
                             self._dest_dag.qregs["q"][current_layout[node.qargs[1]]],
                         ),
                     )
-                    _apply_1_qubit_successors(
-                        dag_node, self._dag, self._dest_dag, current_layout
-                    )
+                    self._apply_1_qubit_successors(dag_node)
 
                     # actually, we just use the method front_layer() after removing the node
                     self._front_layer.remove(node)
@@ -226,28 +250,28 @@ class SabreSwapEnv(gym.Env):
                 isTerminated = False
                 break
 
+        self._swap_candidate = []
         if isTerminated:
-            return [(-1, -1)], current_layout, 0, isTerminated
+            return 0, isTerminated
 
-        swap_candidate_list = []
+        # update the swap candidate list
         for node in self._front_layer:
             q1, q2 = (
                 current_layout[node.qargs[0]],
                 current_layout[node.qargs[1]],
             )
             for nq in self._coupling_map.neighbors(q1):
-                swap_candidate_list.append((q1, nq))
+                self._swap_candidate.append((q1, nq))
             for nq in self._coupling_map.neighbors(q2):
-                swap_candidate_list.append((q2, nq))
+                self._swap_candidate.append((q2, nq))
 
-        return (
-            swap_candidate_list,
-            current_layout,
-            executable_gate_number,
-            isTerminated,
-        )
+        return executable_gate_number, isTerminated
 
-    def _apply_swap(self, action: tuple[int, int]) -> None:
+    def _apply_swap(self, action: tuple[int, int]) -> bool:
+        # Check if the action is valid
+        if action not in self._swap_candidate:
+            return True
+
         # apply the swap operation
         before_swap_depth = self._dest_dag.depth()
         self._dest_dag.apply_operation_back(
@@ -259,7 +283,7 @@ class SabreSwapEnv(gym.Env):
         )
         self._layout.swap(action[0], action[1])
         self._swap_depth += self._dest_dag.depth() - before_swap_depth
-        return
+        return False
 
     def _convert_digraph(self):
         G = nx.DiGraph()
@@ -267,7 +291,7 @@ class SabreSwapEnv(gym.Env):
         process_nodes = deepcopy(self._front_layer)
         while len(process_nodes) > 0 and count < self._n_graph:
             node = process_nodes.pop(0)
-            if not isinstance(node, DAGOpNode):
+            if not isinstance(node, DAGOpNode) or node._node_id in G.nodes:
                 continue
             process_nodes += self._sabre_dag.successors(node)
             G.add_node(
@@ -276,10 +300,11 @@ class SabreSwapEnv(gym.Env):
                 second=node.qargs[1],
                 front_layer=True if count < len(self._front_layer) else False,
             )
-            for pred in self._sabre_dag.predecessors(node):
-                if isinstance(pred, DAGOpNode):
-                    wire = list(filter(lambda x: x in node.qargs, pred.qargs))
-                    G.add_edge(pred._node_id, node._node_id, wire=wire[0])
+            if count >= len(self._front_layer):
+                for pred in self._sabre_dag.predecessors(node):
+                    if isinstance(pred, DAGOpNode) and pred._node_id in G.nodes:
+                        wire = list(filter(lambda x: x in node.qargs, pred.qargs))
+                        G.add_edge(pred._node_id, node._node_id, wire=wire[0])
             count += 1
         return G
 
@@ -291,16 +316,20 @@ class SabreSwapEnv(gym.Env):
             if isinstance(node, DAGOpNode)
         ]
 
-
-# util function to apply the 1 qubit successors of the node
-def _apply_1_qubit_successors(node, dag, dest_dag, layout):
-    """Apply all the 1 qubit successors of the node to the dest_dag."""
-    successors = dag.successors(node)
-    for successor in successors:
-        if isinstance(successor, DAGOpNode) and successor.op.num_qubits == 1:
-            dest_dag.apply_operation_back(
-                successor.op,
-                (dest_dag.qregs["q"][layout[successor.qargs[0]]],),
-            )
-            _apply_1_qubit_successors(successor, dag, dest_dag, layout)
-            dag.remove_op_node(successor)
+    def _apply_1_qubit_successors(
+        self,
+        node: Any,
+    ) -> None:
+        """Apply all the 1 qubit successors of the node to the dest_dag."""
+        if not isinstance(node, DAGOpNode):
+            return
+        successors = self._dag.successors(node)
+        layout = self._layout.get_virtual_bits()
+        for successor in successors:
+            if isinstance(successor, DAGOpNode) and successor.op.num_qubits == 1:
+                self._dest_dag.apply_operation_back(
+                    successor.op,
+                    (self._dest_dag.qregs["q"][layout[successor.qargs[0]]],),
+                )
+                self._apply_1_qubit_successors(successor)
+                self._dag.remove_op_node(successor)
