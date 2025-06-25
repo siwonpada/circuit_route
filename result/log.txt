@@ -42,3 +42,222 @@ Iteration 38912, Policy Loss: 10.4575, Value Loss: 6257.9864, Entropy Bonus: 1.3
 Iteration 39936, Policy Loss: 12.0987, Value Loss: 5767.4724, Entropy Bonus: 1.3960, Failures: 2631
 Iteration 40960, Policy Loss: 16.5872, Value Loss: 11941.8750, Entropy Bonus: 1.3957, Failures: 2708
 Evaluation at iteration 40960: Average Return: -28.5781
+Iteration 1024, Policy Loss: 10.5593, Value Loss: 4469.8898, Entropy Bonus: 1.3379, Failures: 47, Successes: 0
+Iteration 2048, Policy Loss: 6.8993, Value Loss: 2550.3716, Entropy Bonus: 1.3303, Failures: 26, Successes: 0
+Iteration 3072, Policy Loss: 14.7797, Value Loss: 7400.3426, Entropy Bonus: 1.3393, Failures: 51, Successes: 0
+Iteration 4096, Policy Loss: 11.2877, Value Loss: 5551.1812, Entropy Bonus: 1.3433, Failures: 56, Successes: 0
+Iteration 5120, Policy Loss: 14.3436, Value Loss: 10812.2806, Entropy Bonus: 1.3431, Failures: 65, Successes: 0
+Iteration 6144, Policy Loss: 7.8952, Value Loss: 3606.5211, Entropy Bonus: 1.3380, Failures: 33, Successes: 0
+Iteration 7168, Policy Loss: 25.2425, Value Loss: 23372.1501, Entropy Bonus: 1.3545, Failures: 139, Successes: 0
+Iteration 8192, Policy Loss: 6.6949, Value Loss: 2214.3327, Entropy Bonus: 1.3416, Failures: 29, Successes: 0
+Iteration 9216, Policy Loss: 4.9292, Value Loss: 1222.2468, Entropy Bonus: 1.3418, Failures: 17, Successes: 0
+Iteration 10240, Policy Loss: 7.6265, Value Loss: 3429.3741, Entropy Bonus: 1.3371, Failures: 1, Successes: 0
+Evaluation at iteration 10240: Average Return: -52.7062
+Iteration 11264, Policy Loss: 18.6898, Value Loss: 13596.5479, Entropy Bonus: 1.3480, Failures: 94, Successes: 0
+Iteration 12288, Policy Loss: 11.6207, Value Loss: 6449.0897, Entropy Bonus: 1.3384, Failures: 59, Successes: 0
+Iteration 13312, Policy Loss: 6.7799, Value Loss: 1811.7542, Entropy Bonus: 1.3317, Failures: 23, Successes: 0
+Iteration 14336, Policy Loss: 13.5321, Value Loss: 10241.1744, Entropy Bonus: 1.3388, Failures: 70, Successes: 0
+Iteration 15360, Policy Loss: 23.4494, Value Loss: 21697.3511, Entropy Bonus: 1.3452, Failures: 124, Successes: 0
+Iteration 16384, Policy Loss: 19.6764, Value Loss: 13257.4282, Entropy Bonus: 1.3399, Failures: 105, Successes: 0
+Iteration 17408, Policy Loss: 7.3137, Value Loss: 2594.9324, Entropy Bonus: 1.3299, Failures: 22, Successes: 0
+Iteration 18432, Policy Loss: 12.0704, Value Loss: 7254.8760, Entropy Bonus: 1.3344, Failures: 56, Successes: 0
+Iteration 19456, Policy Loss: 9.9228, Value Loss: 4578.5302, Entropy Bonus: 1.3308, Failures: 40, Successes: 0
+Iteration 20480, Policy Loss: 19.1982, Value Loss: 11436.1074, Entropy Bonus: 1.3370, Failures: 108, Successes: 0
+Evaluation at iteration 20480: Average Return: -25.7125
+Iteration 21504, Policy Loss: 18.0138, Value Loss: 14188.0367, Entropy Bonus: 1.3369, Failures: 102, Successes: 0
+Iteration 22528, Policy Loss: 13.6435, Value Loss: 9374.2936, Entropy Bonus: 1.3332, Failures: 66, Successes: 0
+Iteration 23552, Policy Loss: 15.1024, Value Loss: 7408.5304, Entropy Bonus: 1.3331, Failures: 70, Successes: 0
+Iteration 24576, Policy Loss: 7.3214, Value Loss: 1872.4338, Entropy Bonus: 1.3202, Failures: 17, Successes: 0
+Iteration 25600, Policy Loss: 8.9754, Value Loss: 4272.3229, Entropy Bonus: 1.3261, Failures: 39, Successes: 0
+Iteration 26624, Policy Loss: 14.2992, Value Loss: 9046.3259, Entropy Bonus: 1.3305, Failures: 64, Successes: 0
+Iteration 27648, Policy Loss: 13.3266, Value Loss: 7148.4785, Entropy Bonus: 1.3301, Failures: 67, Successes: 0
+Iteration 28672, Policy Loss: 11.5500, Value Loss: 5999.9973, Entropy Bonus: 1.3248, Failures: 49, Successes: 0
+Iteration 29696, Policy Loss: 14.4036, Value Loss: 9783.7108, Entropy Bonus: 1.3272, Failures: 71, Successes: 0
+Iteration 30720, Policy Loss: 15.5828, Value Loss: 11175.1355, Entropy Bonus: 1.3323, Failures: 86, Successes: 0
+Evaluation at iteration 30720: Average Return: -34.5219
+Iteration 31744, Policy Loss: 7.5599, Value Loss: 1931.0111, Entropy Bonus: 1.3212, Failures: 29, Successes: 0
+Iteration 32768, Policy Loss: 12.0965, Value Loss: 6481.6337, Entropy Bonus: 1.3286, Failures: 55, Successes: 0
+Iteration 33792, Policy Loss: 13.7210, Value Loss: 10083.8400, Entropy Bonus: 1.3262, Failures: 63, Successes: 0
+Iteration 34816, Policy Loss: 17.9984, Value Loss: 15327.3530, Entropy Bonus: 1.3351, Failures: 98, Successes: 0
+Iteration 35840, Policy Loss: 12.0893, Value Loss: 7019.9452, Entropy Bonus: 1.3224, Failures: 44, Successes: 0
+Iteration 36864, Policy Loss: 19.4902, Value Loss: 12726.2072, Entropy Bonus: 1.3323, Failures: 99, Successes: 0
+Iteration 37888, Policy Loss: 17.8008, Value Loss: 11081.6654, Entropy Bonus: 1.3283, Failures: 86, Successes: 0
+Iteration 38912, Policy Loss: 15.8857, Value Loss: 7872.6097, Entropy Bonus: 1.3310, Failures: 87, Successes: 0
+Iteration 39936, Policy Loss: 5.1832, Value Loss: 1054.7491, Entropy Bonus: 1.3173, Failures: 19, Successes: 0
+Iteration 40960, Policy Loss: 11.4705, Value Loss: 8609.6092, Entropy Bonus: 1.3165, Failures: 56, Successes: 0
+Evaluation at iteration 40960: Average Return: -19.0031
+Iteration 41984, Policy Loss: 20.3821, Value Loss: 14358.5295, Entropy Bonus: 1.3287, Failures: 108, Successes: 0
+Iteration 43008, Policy Loss: 16.7938, Value Loss: 10648.3013, Entropy Bonus: 1.3248, Failures: 75, Successes: 0
+Iteration 44032, Policy Loss: 7.8032, Value Loss: 3470.9706, Entropy Bonus: 1.3133, Failures: 36, Successes: 0
+Iteration 45056, Policy Loss: 17.7547, Value Loss: 11593.7007, Entropy Bonus: 1.3262, Failures: 94, Successes: 0
+Iteration 46080, Policy Loss: 16.5529, Value Loss: 11781.0190, Entropy Bonus: 1.3233, Failures: 92, Successes: 0
+Iteration 47104, Policy Loss: 8.3697, Value Loss: 3379.5103, Entropy Bonus: 1.3134, Failures: 30, Successes: 0
+Iteration 48128, Policy Loss: 9.4234, Value Loss: 4628.0797, Entropy Bonus: 1.3171, Failures: 38, Successes: 0
+Iteration 49152, Policy Loss: 16.9379, Value Loss: 12810.1473, Entropy Bonus: 1.3208, Failures: 94, Successes: 0
+Iteration 50176, Policy Loss: 16.8192, Value Loss: 9620.4102, Entropy Bonus: 1.3222, Failures: 84, Successes: 0
+Iteration 51200, Policy Loss: 16.2260, Value Loss: 12788.2352, Entropy Bonus: 1.3225, Failures: 87, Successes: 0
+Evaluation at iteration 51200: Average Return: -52.0187
+Iteration 52224, Policy Loss: 3.9577, Value Loss: 658.0188, Entropy Bonus: 1.3032, Failures: 2, Successes: 0
+Iteration 53248, Policy Loss: 9.7835, Value Loss: 4161.8416, Entropy Bonus: 1.3121, Failures: 37, Successes: 0
+Iteration 54272, Policy Loss: 14.6661, Value Loss: 8395.6866, Entropy Bonus: 1.3169, Failures: 76, Successes: 0
+Iteration 55296, Policy Loss: 14.6085, Value Loss: 8261.6127, Entropy Bonus: 1.3199, Failures: 57, Successes: 0
+Iteration 56320, Policy Loss: 7.6046, Value Loss: 3436.8309, Entropy Bonus: 1.3071, Failures: 33, Successes: 0
+Iteration 57344, Policy Loss: 11.3163, Value Loss: 7160.1872, Entropy Bonus: 1.3134, Failures: 59, Successes: 0
+Iteration 58368, Policy Loss: 8.1215, Value Loss: 2738.0976, Entropy Bonus: 1.3095, Failures: 31, Successes: 0
+Iteration 59392, Policy Loss: 6.9639, Value Loss: 2368.7459, Entropy Bonus: 1.3079, Failures: 35, Successes: 0
+Iteration 60416, Policy Loss: 9.6882, Value Loss: 4576.1708, Entropy Bonus: 1.3057, Failures: 43, Successes: 0
+Iteration 61440, Policy Loss: 16.0380, Value Loss: 11035.0950, Entropy Bonus: 1.3186, Failures: 84, Successes: 0
+Evaluation at iteration 61440: Average Return: -15.1344
+Iteration 62464, Policy Loss: 20.1222, Value Loss: 13446.6893, Entropy Bonus: 1.3242, Failures: 94, Successes: 0
+Iteration 63488, Policy Loss: 5.5081, Value Loss: 1112.6417, Entropy Bonus: 1.3084, Failures: 12, Successes: 0
+Iteration 64512, Policy Loss: 17.4431, Value Loss: 9874.4961, Entropy Bonus: 1.3237, Failures: 88, Successes: 0
+Iteration 65536, Policy Loss: 10.2306, Value Loss: 3587.6021, Entropy Bonus: 1.3181, Failures: 43, Successes: 0
+Iteration 66560, Policy Loss: 7.6353, Value Loss: 3351.6813, Entropy Bonus: 1.3123, Failures: 37, Successes: 0
+Iteration 67584, Policy Loss: 8.4453, Value Loss: 3175.3583, Entropy Bonus: 1.3098, Failures: 36, Successes: 0
+Iteration 68608, Policy Loss: 18.4509, Value Loss: 12510.1761, Entropy Bonus: 1.3231, Failures: 99, Successes: 0
+Iteration 69632, Policy Loss: 14.5382, Value Loss: 8116.1033, Entropy Bonus: 1.3186, Failures: 73, Successes: 0
+Iteration 70656, Policy Loss: 7.7579, Value Loss: 2729.0918, Entropy Bonus: 1.3026, Failures: 24, Successes: 0
+Iteration 71680, Policy Loss: 10.4430, Value Loss: 4653.1600, Entropy Bonus: 1.3086, Failures: 34, Successes: 0
+Evaluation at iteration 71680: Average Return: -157.1187
+Iteration 72704, Policy Loss: 12.8148, Value Loss: 7220.2190, Entropy Bonus: 1.3147, Failures: 62, Successes: 0
+Iteration 73728, Policy Loss: 17.3436, Value Loss: 11389.6411, Entropy Bonus: 1.3220, Failures: 95, Successes: 0
+Iteration 74752, Policy Loss: 5.6547, Value Loss: 1606.7421, Entropy Bonus: 1.3057, Failures: 22, Successes: 0
+Iteration 75776, Policy Loss: 13.8287, Value Loss: 6984.7280, Entropy Bonus: 1.3160, Failures: 67, Successes: 0
+Iteration 76800, Policy Loss: 17.4829, Value Loss: 10914.0897, Entropy Bonus: 1.3217, Failures: 92, Successes: 0
+Iteration 77824, Policy Loss: 19.0805, Value Loss: 12638.2590, Entropy Bonus: 1.3193, Failures: 101, Successes: 0
+Iteration 78848, Policy Loss: 10.9290, Value Loss: 5515.2770, Entropy Bonus: 1.3086, Failures: 54, Successes: 0
+Iteration 79872, Policy Loss: 5.3760, Value Loss: 996.2965, Entropy Bonus: 1.3035, Failures: 24, Successes: 1
+Iteration 80896, Policy Loss: 16.4033, Value Loss: 9711.3457, Entropy Bonus: 1.3169, Failures: 83, Successes: 0
+Iteration 81920, Policy Loss: 8.2542, Value Loss: 3935.9366, Entropy Bonus: 1.3109, Failures: 41, Successes: 0
+Evaluation at iteration 81920: Average Return: -38.0188
+Iteration 82944, Policy Loss: 16.9359, Value Loss: 9949.9880, Entropy Bonus: 1.3183, Failures: 77, Successes: 0
+Iteration 83968, Policy Loss: 5.4748, Value Loss: 1220.0642, Entropy Bonus: 1.2987, Failures: 10, Successes: 0
+Iteration 84992, Policy Loss: 14.4681, Value Loss: 7888.4439, Entropy Bonus: 1.3058, Failures: 59, Successes: 0
+Iteration 86016, Policy Loss: 6.1221, Value Loss: 1663.3956, Entropy Bonus: 1.3045, Failures: 19, Successes: 0
+Iteration 87040, Policy Loss: 10.0207, Value Loss: 3782.6734, Entropy Bonus: 1.3084, Failures: 48, Successes: 0
+Iteration 88064, Policy Loss: 11.1122, Value Loss: 5703.6240, Entropy Bonus: 1.3067, Failures: 50, Successes: 0
+Iteration 89088, Policy Loss: 4.0511, Value Loss: 531.3112, Entropy Bonus: 1.2994, Failures: 6, Successes: 0
+Iteration 90112, Policy Loss: 9.3194, Value Loss: 3622.4205, Entropy Bonus: 1.3052, Failures: 41, Successes: 0
+Iteration 91136, Policy Loss: 6.5636, Value Loss: 2070.8342, Entropy Bonus: 1.2981, Failures: 18, Successes: 0
+Iteration 92160, Policy Loss: 6.0674, Value Loss: 1460.7871, Entropy Bonus: 1.3037, Failures: 28, Successes: 0
+Evaluation at iteration 92160: Average Return: -46.1094
+Iteration 93184, Policy Loss: 15.9579, Value Loss: 9655.7516, Entropy Bonus: 1.3185, Failures: 90, Successes: 0
+Iteration 94208, Policy Loss: 4.6001, Value Loss: 849.6050, Entropy Bonus: 1.3032, Failures: 17, Successes: 0
+Iteration 95232, Policy Loss: 12.5967, Value Loss: 6591.9148, Entropy Bonus: 1.3129, Failures: 59, Successes: 0
+Iteration 96256, Policy Loss: 13.9636, Value Loss: 6740.3957, Entropy Bonus: 1.3166, Failures: 60, Successes: 0
+Iteration 97280, Policy Loss: 7.4182, Value Loss: 3360.0705, Entropy Bonus: 1.3097, Failures: 34, Successes: 0
+Iteration 98304, Policy Loss: 12.2823, Value Loss: 7285.3777, Entropy Bonus: 1.3159, Failures: 52, Successes: 0
+Iteration 99328, Policy Loss: 7.2995, Value Loss: 1978.4587, Entropy Bonus: 1.3065, Failures: 30, Successes: 0
+Iteration 100352, Policy Loss: 13.4993, Value Loss: 8052.1186, Entropy Bonus: 1.3124, Failures: 72, Successes: 0
+Iteration 101376, Policy Loss: 11.0831, Value Loss: 6012.0176, Entropy Bonus: 1.3091, Failures: 50, Successes: 0
+Iteration 102400, Policy Loss: 14.6018, Value Loss: 8730.2710, Entropy Bonus: 1.3106, Failures: 58, Successes: 0
+Iteration 1024, Policy Loss: 12.3898, Value Loss: 5424.8823, Entropy Bonus: 1.3112, Failures: 48, Successes: 0
+Iteration 2048, Policy Loss: 7.2245, Value Loss: 2414.5619, Entropy Bonus: 1.3018, Failures: 28, Successes: 0
+Iteration 3072, Policy Loss: 16.2037, Value Loss: 8465.7961, Entropy Bonus: 1.3110, Failures: 73, Successes: 0
+Iteration 4096, Policy Loss: 21.8661, Value Loss: 16632.6882, Entropy Bonus: 1.3236, Failures: 118, Successes: 0
+Iteration 5120, Policy Loss: 7.9047, Value Loss: 2658.2272, Entropy Bonus: 1.3007, Failures: 25, Successes: 0
+Iteration 6144, Policy Loss: 6.4509, Value Loss: 2264.3099, Entropy Bonus: 1.3024, Failures: 25, Successes: 0
+Iteration 7168, Policy Loss: 10.5984, Value Loss: 5052.3685, Entropy Bonus: 1.3047, Failures: 39, Successes: 0
+Iteration 8192, Policy Loss: 13.5617, Value Loss: 9068.7762, Entropy Bonus: 1.3096, Failures: 63, Successes: 0
+Iteration 9216, Policy Loss: 2.8439, Value Loss: 379.2677, Entropy Bonus: 1.2994, Failures: 6, Successes: 0
+Iteration 10240, Policy Loss: 12.2639, Value Loss: 6447.1760, Entropy Bonus: 1.3139, Failures: 55, Successes: 0
+Evaluation at iteration 10240: Average Return: -53.4250
+Iteration 11264, Policy Loss: 4.4405, Value Loss: 974.4696, Entropy Bonus: 1.2989, Failures: 16, Successes: 0
+Iteration 12288, Policy Loss: 16.3292, Value Loss: 9317.8713, Entropy Bonus: 1.3154, Failures: 80, Successes: 0
+Iteration 13312, Policy Loss: 13.6171, Value Loss: 8489.0057, Entropy Bonus: 1.3126, Failures: 67, Successes: 0
+Iteration 14336, Policy Loss: 7.9548, Value Loss: 3116.5043, Entropy Bonus: 1.3007, Failures: 39, Successes: 0
+Iteration 15360, Policy Loss: 12.9022, Value Loss: 5844.0466, Entropy Bonus: 1.3126, Failures: 60, Successes: 0
+Iteration 16384, Policy Loss: 16.9045, Value Loss: 10176.5288, Entropy Bonus: 1.3110, Failures: 87, Successes: 0
+Iteration 17408, Policy Loss: 10.9936, Value Loss: 5421.4471, Entropy Bonus: 1.3037, Failures: 56, Successes: 0
+Iteration 18432, Policy Loss: 16.1917, Value Loss: 9037.3875, Entropy Bonus: 1.3104, Failures: 80, Successes: 0
+Iteration 19456, Policy Loss: 6.3550, Value Loss: 2056.3298, Entropy Bonus: 1.2914, Failures: 25, Successes: 0
+Iteration 20480, Policy Loss: 8.2398, Value Loss: 3205.6263, Entropy Bonus: 1.2932, Failures: 22, Successes: 0
+Evaluation at iteration 20480: Average Return: -100.8344
+Iteration 21504, Policy Loss: 10.6130, Value Loss: 4457.7266, Entropy Bonus: 1.2988, Failures: 44, Successes: 0
+Iteration 22528, Policy Loss: 2.7482, Value Loss: 311.1893, Entropy Bonus: 1.2849, Failures: 2, Successes: 0
+Iteration 23552, Policy Loss: 12.9138, Value Loss: 7202.1801, Entropy Bonus: 1.3014, Failures: 62, Successes: 0
+Iteration 24576, Policy Loss: 15.9473, Value Loss: 8178.9695, Entropy Bonus: 1.3116, Failures: 86, Successes: 0
+Iteration 25600, Policy Loss: 7.6731, Value Loss: 3143.3365, Entropy Bonus: 1.2933, Failures: 30, Successes: 0
+Iteration 26624, Policy Loss: 17.4692, Value Loss: 12061.1860, Entropy Bonus: 1.3063, Failures: 59, Successes: 0
+Iteration 27648, Policy Loss: 10.4207, Value Loss: 4229.4638, Entropy Bonus: 1.2949, Failures: 50, Successes: 0
+Iteration 28672, Policy Loss: 25.5546, Value Loss: 23086.5049, Entropy Bonus: 1.3181, Failures: 143, Successes: 0
+Iteration 29696, Policy Loss: 5.0979, Value Loss: 747.6993, Entropy Bonus: 1.2919, Failures: 12, Successes: 0
+Iteration 30720, Policy Loss: 22.3467, Value Loss: 18034.9236, Entropy Bonus: 1.3149, Failures: 125, Successes: 0
+Evaluation at iteration 30720: Average Return: -30.0594
+Iteration 31744, Policy Loss: 17.5868, Value Loss: 10018.5757, Entropy Bonus: 1.3115, Failures: 95, Successes: 0
+Iteration 32768, Policy Loss: 8.7711, Value Loss: 4627.5816, Entropy Bonus: 1.2991, Failures: 33, Successes: 0
+Iteration 33792, Policy Loss: 16.6837, Value Loss: 9183.9768, Entropy Bonus: 1.3125, Failures: 90, Successes: 0
+Iteration 34816, Policy Loss: 5.8032, Value Loss: 1281.1916, Entropy Bonus: 1.2945, Failures: 12, Successes: 0
+Iteration 35840, Policy Loss: 22.4563, Value Loss: 17037.5869, Entropy Bonus: 1.3189, Failures: 113, Successes: 0
+Iteration 36864, Policy Loss: 12.1652, Value Loss: 9350.2292, Entropy Bonus: 1.3053, Failures: 64, Successes: 0
+Iteration 37888, Policy Loss: 12.9167, Value Loss: 9318.2044, Entropy Bonus: 1.3058, Failures: 70, Successes: 0
+Iteration 38912, Policy Loss: 18.2515, Value Loss: 13350.8179, Entropy Bonus: 1.3067, Failures: 84, Successes: 0
+Iteration 39936, Policy Loss: 10.2478, Value Loss: 4126.9927, Entropy Bonus: 1.2976, Failures: 42, Successes: 0
+Iteration 40960, Policy Loss: 3.8580, Value Loss: 558.0081, Entropy Bonus: 1.2897, Failures: 13, Successes: 1
+Evaluation at iteration 40960: Average Return: -56.9656
+Iteration 41984, Policy Loss: 13.4672, Value Loss: 7980.4395, Entropy Bonus: 1.3033, Failures: 58, Successes: 0
+Iteration 43008, Policy Loss: 13.9862, Value Loss: 7397.6750, Entropy Bonus: 1.3076, Failures: 67, Successes: 0
+Iteration 44032, Policy Loss: 19.7794, Value Loss: 14806.2725, Entropy Bonus: 1.3107, Failures: 84, Successes: 0
+Iteration 45056, Policy Loss: 9.2815, Value Loss: 3490.1487, Entropy Bonus: 1.2990, Failures: 42, Successes: 0
+Iteration 46080, Policy Loss: 13.6989, Value Loss: 7160.9005, Entropy Bonus: 1.3049, Failures: 55, Successes: 0
+Iteration 47104, Policy Loss: 5.2329, Value Loss: 1186.2133, Entropy Bonus: 1.2974, Failures: 17, Successes: 0
+Iteration 48128, Policy Loss: 14.0917, Value Loss: 8715.8949, Entropy Bonus: 1.3032, Failures: 72, Successes: 0
+Iteration 49152, Policy Loss: 4.1912, Value Loss: 907.9116, Entropy Bonus: 1.2880, Failures: 8, Successes: 0
+Iteration 50176, Policy Loss: 14.2687, Value Loss: 8295.6133, Entropy Bonus: 1.2986, Failures: 60, Successes: 0
+Iteration 51200, Policy Loss: 17.3559, Value Loss: 11265.3926, Entropy Bonus: 1.3078, Failures: 90, Successes: 0
+Evaluation at iteration 51200: Average Return: -49.5000
+Iteration 52224, Policy Loss: 8.8577, Value Loss: 2697.6170, Entropy Bonus: 1.2992, Failures: 43, Successes: 0
+Iteration 53248, Policy Loss: 8.4990, Value Loss: 3189.7040, Entropy Bonus: 1.2953, Failures: 29, Successes: 0
+Iteration 54272, Policy Loss: 15.0940, Value Loss: 9484.2305, Entropy Bonus: 1.3003, Failures: 72, Successes: 0
+Iteration 55296, Policy Loss: 13.7057, Value Loss: 7288.7068, Entropy Bonus: 1.3004, Failures: 63, Successes: 0
+Iteration 56320, Policy Loss: 12.8278, Value Loss: 6769.7541, Entropy Bonus: 1.3050, Failures: 56, Successes: 0
+Iteration 57344, Policy Loss: 9.9628, Value Loss: 3700.9033, Entropy Bonus: 1.2960, Failures: 35, Successes: 0
+Iteration 58368, Policy Loss: 6.4029, Value Loss: 1622.3104, Entropy Bonus: 1.2982, Failures: 13, Successes: 0
+Iteration 59392, Policy Loss: 7.6429, Value Loss: 2558.5725, Entropy Bonus: 1.2893, Failures: 19, Successes: 0
+Iteration 60416, Policy Loss: 7.7139, Value Loss: 2454.7446, Entropy Bonus: 1.2942, Failures: 29, Successes: 0
+Iteration 61440, Policy Loss: 5.0626, Value Loss: 1649.5803, Entropy Bonus: 1.2892, Failures: 16, Successes: 0
+Evaluation at iteration 61440: Average Return: -170.5531
+Iteration 62464, Policy Loss: 12.6320, Value Loss: 6753.8903, Entropy Bonus: 1.3034, Failures: 60, Successes: 0
+Iteration 63488, Policy Loss: 21.1807, Value Loss: 15263.9598, Entropy Bonus: 1.3129, Failures: 115, Successes: 0
+Iteration 64512, Policy Loss: 14.7312, Value Loss: 7446.4391, Entropy Bonus: 1.3089, Failures: 78, Successes: 0
+Iteration 65536, Policy Loss: 6.6611, Value Loss: 1928.8196, Entropy Bonus: 1.2870, Failures: 20, Successes: 0
+Iteration 66560, Policy Loss: 19.3486, Value Loss: 15818.5762, Entropy Bonus: 1.3081, Failures: 99, Successes: 0
+Iteration 67584, Policy Loss: 4.6506, Value Loss: 1207.8418, Entropy Bonus: 1.2902, Failures: 17, Successes: 0
+Iteration 68608, Policy Loss: 8.4452, Value Loss: 3018.8392, Entropy Bonus: 1.2978, Failures: 39, Successes: 0
+Iteration 69632, Policy Loss: 8.7835, Value Loss: 4309.9504, Entropy Bonus: 1.2978, Failures: 42, Successes: 0
+Iteration 70656, Policy Loss: 7.5157, Value Loss: 2708.1708, Entropy Bonus: 1.2917, Failures: 39, Successes: 0
+Iteration 71680, Policy Loss: 8.8465, Value Loss: 4938.4056, Entropy Bonus: 1.2957, Failures: 40, Successes: 0
+Evaluation at iteration 71680: Average Return: -92.5031
+Iteration 72704, Policy Loss: 4.3870, Value Loss: 588.5055, Entropy Bonus: 1.2878, Failures: 6, Successes: 0
+Iteration 73728, Policy Loss: 11.0893, Value Loss: 4335.7372, Entropy Bonus: 1.3012, Failures: 35, Successes: 0
+Iteration 74752, Policy Loss: 16.1815, Value Loss: 10668.3776, Entropy Bonus: 1.3058, Failures: 85, Successes: 0
+Iteration 75776, Policy Loss: 3.8525, Value Loss: 679.0171, Entropy Bonus: 1.2862, Failures: 5, Successes: 0
+Iteration 76800, Policy Loss: 9.9978, Value Loss: 4181.4736, Entropy Bonus: 1.2964, Failures: 36, Successes: 0
+Iteration 77824, Policy Loss: 17.4111, Value Loss: 10584.3068, Entropy Bonus: 1.3111, Failures: 88, Successes: 0
+Iteration 78848, Policy Loss: 4.0142, Value Loss: 567.7756, Entropy Bonus: 1.2812, Failures: 0, Successes: 0
+Iteration 79872, Policy Loss: 4.2028, Value Loss: 851.1478, Entropy Bonus: 1.2858, Failures: 11, Successes: 0
+Iteration 80896, Policy Loss: 16.9447, Value Loss: 10438.9762, Entropy Bonus: 1.3048, Failures: 86, Successes: 0
+Iteration 81920, Policy Loss: 5.9888, Value Loss: 1894.0099, Entropy Bonus: 1.2904, Failures: 23, Successes: 0
+Evaluation at iteration 81920: Average Return: -90.9438
+Iteration 82944, Policy Loss: 6.9287, Value Loss: 3134.9904, Entropy Bonus: 1.2877, Failures: 30, Successes: 0
+Iteration 83968, Policy Loss: 5.6768, Value Loss: 1292.3507, Entropy Bonus: 1.2835, Failures: 14, Successes: 0
+Iteration 84992, Policy Loss: 13.2165, Value Loss: 6283.6227, Entropy Bonus: 1.3028, Failures: 57, Successes: 0
+Iteration 86016, Policy Loss: 17.3378, Value Loss: 11713.1267, Entropy Bonus: 1.2936, Failures: 51, Successes: 0
+Iteration 87040, Policy Loss: 24.3405, Value Loss: 22066.7717, Entropy Bonus: 1.3129, Failures: 133, Successes: 0
+Iteration 88064, Policy Loss: 8.5673, Value Loss: 2758.9947, Entropy Bonus: 1.2963, Failures: 46, Successes: 1
+Iteration 89088, Policy Loss: 8.7454, Value Loss: 2614.4333, Entropy Bonus: 1.3038, Failures: 35, Successes: 0
+Iteration 90112, Policy Loss: 7.3278, Value Loss: 3448.2753, Entropy Bonus: 1.2988, Failures: 36, Successes: 0
+Iteration 91136, Policy Loss: 4.5970, Value Loss: 790.4888, Entropy Bonus: 1.2849, Failures: 4, Successes: 0
+Iteration 92160, Policy Loss: 13.4301, Value Loss: 6380.6880, Entropy Bonus: 1.3029, Failures: 62, Successes: 0
+Evaluation at iteration 92160: Average Return: -211.2813
+Iteration 93184, Policy Loss: 6.0065, Value Loss: 1285.4208, Entropy Bonus: 1.2903, Failures: 23, Successes: 0
+Iteration 94208, Policy Loss: 15.2137, Value Loss: 7977.7545, Entropy Bonus: 1.3012, Failures: 79, Successes: 0
+Iteration 95232, Policy Loss: 5.8446, Value Loss: 1276.5134, Entropy Bonus: 1.2885, Failures: 13, Successes: 0
+Iteration 96256, Policy Loss: 6.6661, Value Loss: 1873.6055, Entropy Bonus: 1.2834, Failures: 16, Successes: 0
+Iteration 97280, Policy Loss: 6.2963, Value Loss: 2050.5674, Entropy Bonus: 1.2845, Failures: 18, Successes: 0
+Iteration 98304, Policy Loss: 16.9177, Value Loss: 9805.8021, Entropy Bonus: 1.3042, Failures: 80, Successes: 0
+Iteration 99328, Policy Loss: 7.1371, Value Loss: 2610.4283, Entropy Bonus: 1.2944, Failures: 29, Successes: 0
+Iteration 100352, Policy Loss: 6.1351, Value Loss: 1571.2541, Entropy Bonus: 1.2902, Failures: 30, Successes: 0
+Iteration 101376, Policy Loss: 12.4689, Value Loss: 7908.5789, Entropy Bonus: 1.2984, Failures: 56, Successes: 0
+Iteration 102400, Policy Loss: 6.1403, Value Loss: 1819.2991, Entropy Bonus: 1.2885, Failures: 24, Successes: 0
+Evaluation at iteration 102400: Average Return: -128.1656
