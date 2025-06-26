@@ -27,9 +27,13 @@ class SabreSwapEnv(gym.Env):
         self,
         S_a: int = 10,
         H: int = 10,
+        qubit_range: tuple[int, int] = (2, 10),
+        depth_range: tuple[int, int] = (2, 10),
     ) -> None:
         self._S_a = S_a  # number of swap actions
         self._H = H
+        self._qubit_range = qubit_range
+        self._depth_range = depth_range
         self._swap_singleton = SwapGate()
 
         self.observation_space = gym.spaces.Box(
@@ -44,40 +48,30 @@ class SabreSwapEnv(gym.Env):
     ) -> tuple[Any, dict[str, Any]]:
         """Reset the environment to a new circuit and initialize the SABRE algorithm."""
         super().reset(seed=seed, options=options)
-
-        # setting up the circuit
-        if options is None:
-            options = {"qubit_range": (5, 10), "depth_range": (1, 5)}
-        if options["qubit_range"][0] > options["qubit_range"][1]:
-            raise ValueError(
-                "qubit_range[0] must be less than or equal to qubit_range[1]"
-            )
-        if options["depth_range"][0] > options["depth_range"][1]:
-            raise ValueError(
-                "depth_range[0] must be less than or equal to depth_range[1]"
-            )
         self._coupling_map: CouplingMap = random.choice(
             list(
                 filter(
-                    lambda x: len(x.physical_qubits) >= options["qubit_range"][0],
+                    lambda x: len(x.physical_qubits) >= self._qubit_range[0],
                     coupling_map_list,
                 )
             )
         )
-        self._circuit = random_circuit(
-            num_qubits=random.randint(
-                options["qubit_range"][0],
-                min(options["qubit_range"][1], len(self._coupling_map.physical_qubits)),
-            ),
-            depth=random.randint(*options["depth_range"]),
-            max_operands=2,
-            measure=False,
-            seed=seed,
-        )
+        self._front_layer = []
+        while len(self._front_layer) == 0:
+            self._circuit = random_circuit(
+                num_qubits=random.randint(
+                    self._qubit_range[0],
+                    min(self._qubit_range[1], len(self._coupling_map.physical_qubits)),
+                ),
+                depth=random.randint(*self._depth_range),
+                max_operands=2,
+                measure=False,
+                seed=seed,
+            )
 
-        self._swap_candidate = []
-        self._init_sabre(self._circuit)
-        self._update_front_layer()
+            self._swap_candidate = []
+            self._init_sabre(self._circuit)
+            self._update_front_layer()
         return (
             self._unpack_state(),
             {},
