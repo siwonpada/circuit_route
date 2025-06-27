@@ -28,13 +28,15 @@ class SabreSwapEnv(gym.Env):
         S_a: int = 10,
         H: int = 10,
         qubit_range: tuple[int, int] = (2, 10),
-        depth_range: tuple[int, int] = (2, 10),
+        start_level: int = 2,
     ) -> None:
         self._S_a = S_a  # number of swap actions
         self._H = H
         self._qubit_range = qubit_range
-        self._depth_range = depth_range
+        self._level = start_level
         self._swap_singleton = SwapGate()
+        self._success = False
+        self._reset_failed = 0
 
         self.observation_space = gym.spaces.Box(
             low=-2, high=2, shape=(S_a, H), dtype=np.int32
@@ -42,6 +44,31 @@ class SabreSwapEnv(gym.Env):
 
         self.action_space = gym.spaces.Discrete(S_a)
         return
+
+    def set_level(self, level: int) -> None:
+        if level < 1:
+            raise ValueError("The level must be at least 3.")
+        self._level = level
+
+    def get_level(self) -> int:
+        """Get the current level of the environment."""
+        return self._level
+
+    def get_reset_failed(self) -> int:
+        """Get the number of times the environment failed to reset."""
+        return self._reset_failed
+
+    def is_success(self) -> bool:
+        """Check if the environment is in a success state."""
+        return self._success
+
+    def front_layer_size(self) -> int:
+        """Get the size of the front layer."""
+        return len(self._front_layer)
+
+    def swap_candidate_size(self) -> int:
+        """Get the size of the swap candidate list."""
+        return len(self._swap_candidate)
 
     def reset(
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
@@ -57,13 +84,17 @@ class SabreSwapEnv(gym.Env):
             )
         )
         self._front_layer = []
-        while len(self._front_layer) == 0:
+        self._success = False
+        Terminated = True
+        i = 0
+        while Terminated:
+            i += 1
             self._circuit = random_circuit(
                 num_qubits=random.randint(
                     self._qubit_range[0],
                     min(self._qubit_range[1], len(self._coupling_map.physical_qubits)),
                 ),
-                depth=random.randint(*self._depth_range),
+                depth=self._level,
                 max_operands=2,
                 measure=False,
                 seed=seed,
@@ -71,7 +102,8 @@ class SabreSwapEnv(gym.Env):
 
             self._swap_candidate = []
             self._init_sabre(self._circuit)
-            self._update_front_layer()
+            _, Terminated = self._update_front_layer()
+        self._reset_failed = i
         return (
             self._unpack_state(),
             {},
@@ -84,6 +116,7 @@ class SabreSwapEnv(gym.Env):
         isTruncated = self._apply_swap(action)
 
         executable_gate_number, isTerminated = self._update_front_layer()
+        self._success = isTerminated
         return (
             self._unpack_state(),
             self.reward(
@@ -295,6 +328,8 @@ class SabreSwapEnv(gym.Env):
         if len(self._swap_candidate) == 1 and self._swap_candidate[0] == (-1, -1):
             return result_matrix
 
+        random.shuffle(self._swap_candidate)
+
         for i, (a, b) in enumerate(self._swap_candidate):
             if i >= self._S_a:
                 break
@@ -303,6 +338,7 @@ class SabreSwapEnv(gym.Env):
                 horizontals.append((nq, a))
             for nq in self._coupling_map.neighbors(b):
                 horizontals.append((nq, b))
+            horizontals += self._swap_candidate
             for j in range(self._H):
                 if j < len(horizontals):
                     temp_layout = self._layout.copy()
