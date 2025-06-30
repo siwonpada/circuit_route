@@ -27,16 +27,15 @@ class SabreSwapEnv(gym.Env):
         self,
         S_a: int = 10,
         H: int = 10,
-        qubit_range: tuple[int, int] = (2, 10),
         start_level: int = 2,
     ) -> None:
         self._S_a = S_a  # number of swap actions
         self._H = H
-        self._qubit_range = qubit_range
         self._level = start_level
         self._swap_singleton = SwapGate()
         self._success = False
         self._reset_failed = 0
+        self._test = False
 
         self.observation_space = gym.spaces.Box(
             low=-2, high=2, shape=(S_a, H), dtype=np.int32
@@ -75,31 +74,26 @@ class SabreSwapEnv(gym.Env):
     ) -> tuple[Any, dict[str, Any]]:
         """Reset the environment to a new circuit and initialize the SABRE algorithm."""
         super().reset(seed=seed, options=options)
-        self._coupling_map: CouplingMap = random.choice(
-            list(
-                filter(
-                    lambda x: len(x.physical_qubits) >= self._qubit_range[0],
-                    coupling_map_list,
-                )
-            )
-        )
-        self._front_layer = []
         self._success = False
         Terminated = True
         i = 0
         while Terminated:
             i += 1
+            if i % 1000 == 0:
+                print("Resetting environment, attempt:", i)
+            self._coupling_map: CouplingMap = random.choice(coupling_map_list)
             self._circuit = random_circuit(
                 num_qubits=random.randint(
-                    self._qubit_range[0],
-                    min(self._qubit_range[1], len(self._coupling_map.physical_qubits)),
+                    3,
+                    min(self._level + 3, len(self._coupling_map.physical_qubits)),
                 ),
-                depth=self._level,
+                depth=self._level + 2,
                 max_operands=2,
                 measure=False,
                 seed=seed,
+                num_operand_distribution={1: 0, 2: 1},
             )
-
+            self._front_layer = []
             self._swap_candidate = []
             self._init_sabre(self._circuit)
             _, Terminated = self._update_front_layer()
@@ -114,16 +108,26 @@ class SabreSwapEnv(gym.Env):
     ) -> tuple[Any, SupportsFloat, bool, bool, dict[str, Any]]:
         """Perform a step in the environment by applying a swap action."""
         isTruncated = self._apply_swap(action)
+        if isTruncated:
+            self._success = False
+            return (
+                self._unpack_state(),
+                self.reward(0, self._swap_depth, False, isTruncated),
+                False,
+                isTruncated,
+                {},
+            )
 
         executable_gate_number, isTerminated = self._update_front_layer()
         self._success = isTerminated
+        self._test = isTruncated
         return (
             self._unpack_state(),
             self.reward(
                 executable_gate_number, self._swap_depth, isTerminated, isTruncated
             ),
             isTerminated,
-            isTruncated,
+            False,
             {},
         )
 
@@ -240,6 +244,9 @@ class SabreSwapEnv(gym.Env):
             else:
                 isTerminated = False
                 break
+
+        if isTerminated:
+            self._success = True
 
         self._swap_candidate = []
         if isTerminated:

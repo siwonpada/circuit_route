@@ -20,7 +20,7 @@ def create_T(n) -> CouplingMap:
 
 
 coupling_map_list = [
-    *[CouplingMap.from_line(n) for n in range(3, 11)],
+    *[CouplingMap.from_line(n) for n in range(4, 11)],
     CouplingMap.from_ring(12),
     *[create_Y(2 * n) for n in range(2, 6)],
     *[create_T(n) for n in range(5, 11)],
