@@ -18,6 +18,7 @@ from qiskit.transpiler.layout import Layout
 from qiskit.converters import circuit_to_dag
 from qiskit.dagcircuit import DAGOpNode, DAGCircuit
 from qiskit.circuit.random import random_circuit
+from collections import deque
 
 from .coupling_map_list import coupling_map_list
 
@@ -28,14 +29,14 @@ class SabreSwapEnv(gym.Env):
         S_a: int = 10,
         H: int = 10,
         start_level: int = 2,
+        max_window_size: int = 100,
     ) -> None:
         self._S_a = S_a  # number of swap actions
         self._H = H
         self._level = start_level
         self._swap_singleton = SwapGate()
-        self._success = False
         self._reset_failed = 0
-        self._test = False
+        self._result_deque = deque(maxlen=max_window_size)
 
         self.observation_space = gym.spaces.Box(
             low=-2, high=2, shape=(S_a, H), dtype=np.int32
@@ -49,6 +50,12 @@ class SabreSwapEnv(gym.Env):
             raise ValueError("The level must be at least 3.")
         self._level = level
 
+    def get_success_rate(self) -> float:
+        """Calculate the success rate based on the results deque."""
+        if len(self._result_deque) == 0:
+            return 0.0
+        return sum(self._result_deque) / len(self._result_deque)
+
     def get_level(self) -> int:
         """Get the current level of the environment."""
         return self._level
@@ -56,10 +63,6 @@ class SabreSwapEnv(gym.Env):
     def get_reset_failed(self) -> int:
         """Get the number of times the environment failed to reset."""
         return self._reset_failed
-
-    def is_success(self) -> bool:
-        """Check if the environment is in a success state."""
-        return self._success
 
     def front_layer_size(self) -> int:
         """Get the size of the front layer."""
@@ -74,27 +77,26 @@ class SabreSwapEnv(gym.Env):
     ) -> tuple[Any, dict[str, Any]]:
         """Reset the environment to a new circuit and initialize the SABRE algorithm."""
         super().reset(seed=seed, options=options)
+        self._coupling_map: CouplingMap = random.choice(coupling_map_list)
         self._success = False
+        self._truncated = False
         Terminated = True
         i = 0
         while Terminated:
             i += 1
             if i % 1000 == 0:
                 print("Resetting environment, attempt:", i)
-            self._coupling_map: CouplingMap = random.choice(coupling_map_list)
             self._circuit = random_circuit(
                 num_qubits=random.randint(
                     3,
                     min(self._level + 3, len(self._coupling_map.physical_qubits)),
                 ),
-                depth=self._level + 2,
+                depth=self._level + 1,
                 max_operands=2,
                 measure=False,
                 seed=seed,
                 num_operand_distribution={1: 0, 2: 1},
             )
-            self._front_layer = []
-            self._swap_candidate = []
             self._init_sabre(self._circuit)
             _, Terminated = self._update_front_layer()
         self._reset_failed = i
@@ -109,7 +111,7 @@ class SabreSwapEnv(gym.Env):
         """Perform a step in the environment by applying a swap action."""
         isTruncated = self._apply_swap(action)
         if isTruncated:
-            self._success = False
+            self._result_deque.append(False)
             return (
                 self._unpack_state(),
                 self.reward(0, self._swap_depth, False, isTruncated),
@@ -119,8 +121,8 @@ class SabreSwapEnv(gym.Env):
             )
 
         executable_gate_number, isTerminated = self._update_front_layer()
-        self._success = isTerminated
-        self._test = isTruncated
+        if isTerminated:
+            self._result_deque.append(True)
         return (
             self._unpack_state(),
             self.reward(
@@ -206,6 +208,7 @@ class SabreSwapEnv(gym.Env):
             execute_gate_list = []
             current_layout = self._layout.get_virtual_bits()
 
+            # check if the node in the front layer can be executed
             for node in self._front_layer:
                 q1, q2 = (
                     current_layout[node.qargs[0]],
@@ -217,6 +220,7 @@ class SabreSwapEnv(gym.Env):
 
             if len(execute_gate_list) != 0:
                 self._swap_depth = 0
+                # apply the executable gates
                 for node in execute_gate_list:
                     successors = self._sabre_dag.successors(node)
                     self._sabre_dag.remove_op_node(node)
@@ -230,6 +234,7 @@ class SabreSwapEnv(gym.Env):
                     )
                     self._apply_1_qubit_successors(dag_node)
 
+                    # front layer update
                     # actually, we just use the method front_layer() after removing the node
                     self._front_layer.remove(node)
                     for node in successors:
