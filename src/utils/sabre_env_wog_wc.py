@@ -48,6 +48,7 @@ class SabreSwapEnv(gym.Env):
     def set_level(self, level: int) -> None:
         if level < 1:
             raise ValueError("The level must be at least 3.")
+        self._result_deque.clear()
         self._level = level
 
     def get_success_rate(self) -> float:
