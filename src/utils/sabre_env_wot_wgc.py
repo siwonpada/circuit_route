@@ -20,6 +20,7 @@ from qiskit.converters import circuit_to_dag
 from qiskit.dagcircuit import DAGOpNode, DAGCircuit
 from qiskit.circuit.random import random_circuit
 from collections import deque
+from torch_geometric.utils import from_networkx
 
 from .coupling_map_list import coupling_map_list
 
@@ -46,8 +47,8 @@ class SabreSwapEnv(gym.Env):
                 "matrix": gym.spaces.Box(
                     low=-2, high=2, shape=(S_a, H), dtype=np.int32
                 ),
-                "adjacency": gym.spaces.Box(
-                    low=0, high=1, shape=(N, N), dtype=np.int32
+                "edge_index": gym.spaces.Box(
+                    low=0, high=1, shape=(2, 2 * N), dtype=np.int32
                 ),
                 "features": gym.spaces.Box(
                     low=0, high=133, shape=(N, 2), dtype=np.int32
@@ -313,13 +314,16 @@ class SabreSwapEnv(gym.Env):
             if not isinstance(node, DAGOpNode) or node._node_id in G.nodes:
                 continue
             process_nodes += self._sabre_dag.successors(node)
+            is_front_layer = 1 if count < len(self._front_layer) else 0
+            distance = self._coupling_map.distance(
+                self._layout.get_virtual_bits()[node.qargs[0]],
+                self._layout.get_virtual_bits()[node.qargs[1]],
+            )
             G.add_node(
                 node._node_id,
-                front_layer=True if count < len(self._front_layer) else False,
-                distance=self._coupling_map.distance(
-                    self._layout.get_physical_bits()[node.qargs[0]],
-                    self._layout.get_physical_bits()[node.qargs[1]],
-                ),
+                front_layer=is_front_layer,
+                distance=distance,
+                x=np.array([is_front_layer, distance]),
             )
             if count >= len(self._front_layer):
                 for pred in self._sabre_dag.predecessors(node):
@@ -404,24 +408,25 @@ class SabreSwapEnv(gym.Env):
                         np.array(new_distance) - np.array(current_distance)
                     ).astype(np.int32)
 
-        digraph = self._convert_digraph()
+        data = from_networkx(self._convert_digraph())
 
-        features = np.zeros((self._N, 2), dtype=np.int32)
-        for i, node in enumerate(digraph.nodes):
-            if digraph.nodes[node]["front_layer"]:
-                features[i, 0] = 1
-            else:
-                features[i, 0] = 0
-            features[i, 1] = digraph.nodes[node]["distance"]
+        if data.x is None or data.x.shape[0] == 0:
+            data.x = np.zeros((0, 2), dtype=np.int32)
+        else:
+            data.x = data.x.numpy()
 
         return {
             "matrix": result_matrix,
-            # TODO: add the adjacency matrix and features of the sabre dag.
-            "adjacency": np.pad(
-                nx.adjacency_matrix(digraph),
-                ((0, self._N), (0, self._N)),
+            "edge_index": np.pad(
+                data.edge_index.numpy().astype(np.int32),
+                ((0, 0), (0, 2 * self._N - data.edge_index.shape[1])),
                 mode="constant",
                 constant_values=0,
-            ).astype(np.int32),
-            "features": features,
+            ),
+            "features": np.pad(
+                data.x.astype(np.int32),
+                ((0, self._N - data.x.shape[0]), (0, 0)),
+                mode="constant",
+                constant_values=0,
+            ),
         }
