@@ -36,13 +36,27 @@ class CoRoutingEnv(gym.Env):
         self._reset_failed = 0
         self._result_deque = deque(maxlen=max_window_size)
 
-        self.observation_space = gym.spaces.Graph(
-            node_space=gym.spaces.Box(low=0, high=1, shape=(self._N,), dtype=np.int32),
-            edge_space=None,
+        self.observation_space = gym.spaces.Dict(
+            {
+                "nodes": gym.spaces.Box(
+                    low=0,
+                    high=self._N,
+                    shape=(
+                        133,
+                        self._N,
+                    ),
+                    dtype=np.int32,
+                ),
+                "edge_links": gym.spaces.Box(low=0, high=132, shape=(300, 2)),
+                "nodes_num": gym.spaces.Box(low=0, high=133, shape=(), dtype=np.int32),
+            }
         )
 
         self.action_space = gym.spaces.MultiDiscrete(np.array([133, 133]))
         return
+
+    def action_masks(self) -> np.ndarray:
+        return np.array([True] * self._node_num + [False] * (133 - self._node_num))
 
     def set_level(self, level: int) -> None:
         if level < 1:
@@ -78,7 +92,7 @@ class CoRoutingEnv(gym.Env):
 
     def reset(
         self, *, seed: int | None = None, options: dict[str, Any] | None = None
-    ) -> tuple[gym.spaces.GraphInstance, dict[str, Any]]:
+    ) -> tuple[dict, dict[str, Any]]:
         """Reset the environment to a new circuit and initialize the SABRE algorithm."""
         super().reset(seed=seed, options=options)
         self._coupling_map: CouplingMap = random.choice(coupling_map_list)
@@ -113,7 +127,7 @@ class CoRoutingEnv(gym.Env):
 
     def step(
         self, action: tuple[int, int]
-    ) -> tuple[gym.spaces.GraphInstance, SupportsFloat, bool, bool, dict[str, Any]]:
+    ) -> tuple[dict, SupportsFloat, bool, bool, dict[str, Any]]:
         """Perform a step in the environment by applying a swap action."""
         isTruncated = self._apply_swap(action)
         executable_gate_number, isTerminated = self._update_front_layer()
@@ -233,7 +247,11 @@ class CoRoutingEnv(gym.Env):
 
     def _apply_swap(self, action: tuple[int, int]) -> bool:
         # Check if the action is valid
-        if self._coupling_map.distance(action[0], action[1]) != 1:
+        if (
+            action[0] >= self._node_num
+            or action[1] >= self._node_num
+            or self._coupling_map.distance(action[0], action[1]) != 1
+        ):
             return True
 
         # apply the swap operation
@@ -249,7 +267,7 @@ class CoRoutingEnv(gym.Env):
         self._swap_depth += self._dest_dag.depth() - before_swap_depth
         return False
 
-    def _unpack_state(self) -> gym.spaces.GraphInstance:
+    def _unpack_state(self) -> dict:
         """Unpack the state into a Graph instance."""
         nodes = np.zeros((self._node_num, self._N), dtype=np.int32)
         layers = self._sabre_dag.layers()
@@ -262,9 +280,19 @@ class CoRoutingEnv(gym.Env):
                 nodes[layout[node.qargs[0]], counter] = i + 1
                 nodes[layout[node.qargs[1]], counter] = i + 1
                 counter += 1
-
-        return gym.spaces.GraphInstance(
-            nodes=nodes,
-            edges=None,
-            edge_links=self._edge_links,
+        test = np.pad(
+            nodes,
+            ((0, 133 - nodes.shape[0]), (0, 0)),
+            mode="constant",
+            constant_values=0,
         )
+        return {
+            "nodes": test,
+            "edge_links": np.pad(
+                self._edge_links,
+                ((0, 300 - self._edge_links.shape[0]), (0, 0)),
+                mode="constant",
+                constant_values=0,
+            ),
+            "nodes_num": self._node_num,
+        }
