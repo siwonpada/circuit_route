@@ -729,7 +729,14 @@ class CoRoutingEnv(gym.Env):
         """Reset the environment to a new circuit and initialize the SABRE algorithm."""
         super().reset(seed=seed, options=options)
         self._coupling_map: CouplingMap = random.choice(
-            coupling_map_list,
+            list(
+                filter(
+                    lambda cm: (cm.size() <= 20 and self._level <= 3)
+                    or (cm.size() <= 32 and self._level <= 6)
+                    or (self._level >= 7),
+                    coupling_map_list,
+                ),
+            )
         )
         self._edge_links = np.array(self._coupling_map.get_edges(), dtype=np.int64)
         self._edge_links_num = self._edge_links.shape[0]
@@ -1062,7 +1069,7 @@ gym.register(id=ENV_ID, entry_point=CoRoutingEnv)  # type: ignore
 N_TRIALS = 2000
 N_STARTUP_TRIALS = 10
 N_EVALUATIONS = 5
-N_TIMESTEPS = int(1e6)
+N_TIMESTEPS = int(1e7)
 N_WORKERS = 16
 EVAL_FREQ = int(N_TIMESTEPS / (N_EVALUATIONS * N_WORKERS))
 N_EVAL_EPISODES = 5
@@ -1212,7 +1219,7 @@ class TrialEvalCallback(EvalCallback):
 
 
 # %%
-EX_NAME = "dense_co_candidate"
+EX_NAME = "GNN_method"
 
 
 def make_env():
@@ -1278,6 +1285,9 @@ if __name__ == "__main__":
     pruner = MedianPruner(
         n_startup_trials=N_STARTUP_TRIALS, n_warmup_steps=N_EVALUATIONS // 3
     )
+
+    if not os.path.exists(EX_NAME):
+        os.makedirs(EX_NAME)
 
     if not os.path.exists(f"./{EX_NAME}/study.db"):
         study = optuna.create_study(
