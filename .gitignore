@@ -2,3 +2,6 @@
 __pycache__/
 checkpoint/
 optuna_*/
+/ibm_implementation
+/2swap_method
+/ibm_implementation_random_layout
